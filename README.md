@@ -16,12 +16,12 @@ Flowcraft ships with a first-class AI assistant that turns natural-language desc
 
 1. Click the **AI Assistant** floating button at the bottom-right of the canvas.
 2. Describe the process you want — for example:
-   > *"Build an employee onboarding workflow with document collection, IT account provisioning, manager approval, and a welcome email."*
+  > *"Build an employee onboarding workflow with document collection, IT account provisioning, manager approval, and a welcome email."*
 3. The assistant generates a complete graph (nodes + edges + per-node configuration), drops it straight onto your canvas, and auto-renames the workflow.
 
 ### How it works (under the hood)
 
-- **Model:** `gpt-4o-mini` via [`@ai-sdk/openai`](https://sdk.vercel.ai) — fast, cheap, excellent at structured JSON.
+- **Model:** `gpt-4o-mini` via `[@ai-sdk/openai](https://sdk.vercel.ai)` — fast, cheap, excellent at structured JSON.
 - **Structured output:** Uses AI SDK 6's `generateText` + `Output.object({ schema })` with a **Zod schema that mirrors Flowcraft's `WorkflowNode` / `WorkflowEdge` types** — so the LLM output is guaranteed to match the canvas shape or the call fails loudly.
 - **Domain-aware system prompt:** Feeds the model the full list of node types, the 5 allowed `actionId` values for Automated Steps, canonical HR flow patterns, and top-to-bottom layout rules.
 - **Safe by design:** The generated graph replaces the **current** workflow's contents (matching the same UX contract as template loading), the prior state is pushed onto the undo stack so **Ctrl+Z reverts cleanly**, and the existing structural validator catches any mistakes the AI misses.
@@ -31,26 +31,19 @@ Flowcraft ships with a first-class AI assistant that turns natural-language desc
 
 The AI assistant needs your own OpenAI API key. The rest of the app runs without it.
 
-1. **Get a key:** [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) (pay-as-you-go, around **$0.0001 per workflow generated** at `gpt-4o-mini` rates).
+1. **Get a key:** [https://docs.google.com/document/d/15f8W5dztOyq5qjpPS1zu5vbCrtiO8O8L/edit?usp=sharing&ouid=103511385425695784623&rtpof=true&sd=true](https://docs.google.com/document/d/15f8W5dztOyq5qjpPS1zu5vbCrtiO8O8L/edit?usp=sharing&ouid=103511385425695784623&rtpof=true&sd=true)
 2. **Add the key to a local env file.** From the project root:
-   ```bash
+  ```bash
    cp .env.example .env.local
-   ```
+  ```
    Then edit `.env.local` and set:
-   ```env
-   OPENAI_API_KEY=sk-proj-...your-key-here...
-   ```
 3. **Restart the dev server** (`pnpm dev`). The AI Assistant button will now generate real workflows.
 
 If the variable is missing, the route returns a clear `500` with a human-readable message pointing you back to this section — it never crashes silently.
 
-### For deployed environments
-
-On Vercel, Netlify, or any host, add `OPENAI_API_KEY` as an environment variable in your project settings — no code changes required. `.env.local` is in `.gitignore` so your key is never committed.
-
 ---
 
-## Live Demo
+## Live Demo : [https://flowcraft-hr.vercel.app/](https://flowcraft-hr.vercel.app/)
 
 1. `pnpm install`
 2. `cp .env.example .env.local` and add your `OPENAI_API_KEY` (only needed for the AI feature)
@@ -67,43 +60,49 @@ Apart from the optional AI key, no external services are required — everything
 
 ### Required (from the case study spec)
 
-| Requirement | Status |
-| --- | --- |
-| React app scaffolding (Vite **or** Next.js) | Done — Next.js 16 App Router |
-| React Flow canvas with multiple custom node types | Done — 5 node types (Start, Task, Approval, Automated Step, End) |
-| Drag from sidebar · connect · select · delete | Done |
-| Per-node configuration forms with dynamic fields | Done — one typed form per node type |
-| Mock `GET /automations` | Done — returns 5 actions with typed params |
-| Mock `POST /simulate` | Done — validates, topologically sorts, returns timestamped log |
-| Sandbox panel with step-by-step execution | Done — slide-over sheet with validation + timeline |
-| Structural validation (cycles · reachability · Start/End rules) | Done — DFS + BFS + Kahn's algorithm |
-| Clean folder structure, hooks, type safety | Done |
-| README with architecture and design decisions | This document |
+
+| Requirement                                                     | Status                                                           |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| React app scaffolding (Vite **or** Next.js)                     | Done — Next.js 16 App Router                                     |
+| React Flow canvas with multiple custom node types               | Done — 5 node types (Start, Task, Approval, Automated Step, End) |
+| Drag from sidebar · connect · select · delete                   | Done                                                             |
+| Per-node configuration forms with dynamic fields                | Done — one typed form per node type                              |
+| Mock `GET /automations`                                         | Done — returns 5 actions with typed params                       |
+| Mock `POST /simulate`                                           | Done — validates, topologically sorts, returns timestamped log   |
+| Sandbox panel with step-by-step execution                       | Done — slide-over sheet with validation + timeline               |
+| Structural validation (cycles · reachability · Start/End rules) | Done — DFS + BFS + Kahn's algorithm                              |
+| Clean folder structure, hooks, type safety                      | Done                                                             |
+| README with architecture and design decisions                   | This document                                                    |
+
 
 ### Bonus (all seven implemented)
 
-| Bonus feature | Status |
-| --- | --- |
-| Export / Import workflow as JSON | Done |
-| Node templates | Done — 3 templates (Onboarding, Leave, Documents) |
-| Undo / Redo | Done — Ctrl+Z / Ctrl+Y + toolbar buttons, 50-step history |
-| Mini-map + zoom controls | Done |
-| Validation errors visually shown on nodes | Done — red/amber badges with hover tooltips |
-| Auto-layout | Done — Dagre top-to-bottom |
-| Node version history | Done — per-node timeline, persisted to `localStorage`, restore-any-version |
+
+| Bonus feature                             | Status                                                                     |
+| ----------------------------------------- | -------------------------------------------------------------------------- |
+| Export / Import workflow as JSON          | Done                                                                       |
+| Node templates                            | Done — 3 templates (Onboarding, Leave, Documents)                          |
+| Undo / Redo                               | Done — Ctrl+Z / Ctrl+Y + toolbar buttons, 50-step history                  |
+| Mini-map + zoom controls                  | Done                                                                       |
+| Validation errors visually shown on nodes | Done — red/amber badges with hover tooltips                                |
+| Auto-layout                               | Done — Dagre top-to-bottom                                                 |
+| Node version history                      | Done — per-node timeline, persisted to `localStorage`, restore-any-version |
+
 
 ### Additional polish (beyond the spec)
 
-| Addition | Why it matters |
-| --- | --- |
-| **AI natural-language workflow generator** | **Hero feature — describes-and-builds with GPT-4o-mini, full Zod schema validation, safe replace semantics** |
-| Multi-workflow registry with switcher | Users can manage several HR processes in parallel without losing state |
-| Welcome tour on first visit | Teaches the AI assistant, canvas gestures and shortcuts; dismissal persisted |
-| Four-sided connection handles with smart visibility | Matches the CodeAuto reference design; handles only appear on hover or when connected |
-| Edges tinted by source-node type | Canvas stays legible — green from Start, amber from Approval, etc. |
-| Collapsible Tips panel | Surfaces shortcuts without cluttering the palette long-term |
-| Dagre-based layout on template load | Generated workflows look hand-arranged, not dumped |
-| Brand + metadata polish | Custom SVG mark, proper `<title>` and `<meta description>` |
+
+| Addition                                            | Why it matters                                                                                               |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **AI natural-language workflow generator**          | **Hero feature — describes-and-builds with GPT-4o-mini, full Zod schema validation, safe replace semantics** |
+| Multi-workflow registry with switcher               | Users can manage several HR processes in parallel without losing state                                       |
+| Welcome tour on first visit                         | Teaches the AI assistant, canvas gestures and shortcuts; dismissal persisted                                 |
+| Four-sided connection handles with smart visibility | Matches the CodeAuto reference design; handles only appear on hover or when connected                        |
+| Edges tinted by source-node type                    | Canvas stays legible — green from Start, amber from Approval, etc.                                           |
+| Collapsible Tips panel                              | Surfaces shortcuts without cluttering the palette long-term                                                  |
+| Dagre-based layout on template load                 | Generated workflows look hand-arranged, not dumped                                                           |
+| Brand + metadata polish                             | Custom SVG mark, proper `<title>` and `<meta description>`                                                   |
+
 
 ---
 
@@ -294,17 +293,19 @@ One-click layout uses Dagre with tuned spacing (240×84 node box, 50px horizonta
 
 ## Canvas Interactions Cheat Sheet
 
-| Gesture | Action |
-| --- | --- |
-| Left-drag on empty canvas | Box-select multiple nodes |
-| Space + drag **or** right-click drag | Pan the canvas |
-| Scroll wheel | Pan |
-| Ctrl + scroll | Zoom |
-| Shift / Ctrl + click | Add node to selection |
-| Delete / Backspace | Remove selected nodes or edges |
-| Ctrl + Z | Undo |
-| Ctrl + Y **or** Ctrl + Shift + Z | Redo |
-| Drag from handle to another handle | Connect nodes |
+
+| Gesture                              | Action                         |
+| ------------------------------------ | ------------------------------ |
+| Left-drag on empty canvas            | Box-select multiple nodes      |
+| Space + drag **or** right-click drag | Pan the canvas                 |
+| Scroll wheel                         | Pan                            |
+| Ctrl + scroll                        | Zoom                           |
+| Shift / Ctrl + click                 | Add node to selection          |
+| Delete / Backspace                   | Remove selected nodes or edges |
+| Ctrl + Z                             | Undo                           |
+| Ctrl + Y **or** Ctrl + Shift + Z     | Redo                           |
+| Drag from handle to another handle   | Connect nodes                  |
+
 
 ---
 
@@ -346,7 +347,7 @@ A secondary variant of the same pattern bit the per-node history feature later: 
 - **Layout:** Dagre
 - **Icons:** Lucide React
 - **Notifications:** Sonner
-- **AI:** [AI SDK 6](https://sdk.vercel.ai) · [`@ai-sdk/openai`](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) · `gpt-4o-mini` · Zod for structured output validation
+- **AI:** [AI SDK 6](https://sdk.vercel.ai) · `[@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai)` · `gpt-4o-mini` · Zod for structured output validation
 - **Validation:** Hand-rolled graph algorithms (DFS · BFS · Kahn)
 - **Persistence:** `localStorage` (registry + node history) — intentionally mock-only per the case study spec
 
@@ -354,11 +355,13 @@ A secondary variant of the same pattern bit the per-node history feature later: 
 
 ## Environment Variables
 
-| Variable | Required | Purpose | Where to get it |
-| --- | --- | --- | --- |
-| `OPENAI_API_KEY` | Only for the AI feature | Authenticates AI SDK calls to GPT-4o-mini | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
 
-See [`.env.example`](./.env.example) for the template. Copy it to `.env.local` and fill in your key. `.env.local` is already in `.gitignore`.
+| Variable         | Required                | Purpose                                   | Where to get it                                                                                                                                                                                                                                                            |
+| ---------------- | ----------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENAI_API_KEY` | Only for the AI feature | Authenticates AI SDK calls to GPT-4o-mini | [https://docs.google.com/document/d/15f8W5dztOyq5qjpPS1zu5vbCrtiO8O8L/edit?usp=sharing&ouid=103511385425695784623&rtpof=true&sd=true](https://docs.google.com/document/d/15f8W5dztOyq5qjpPS1zu5vbCrtiO8O8L/edit?usp=sharing&ouid=103511385425695784623&rtpof=true&sd=true) |
+
+
+See `[.env.example](./.env.example)` for the template. Copy it to `.env.local` and fill in your key. `.env.local` is already in `.gitignore`.
 
 ---
 
@@ -371,3 +374,4 @@ pnpm build        # Production build
 pnpm start        # Start production server
 pnpm lint         # ESLint
 ```
+
